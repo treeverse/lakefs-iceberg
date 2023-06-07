@@ -32,10 +32,6 @@ public class LakeFSCatalog extends HadoopCatalog {
             }
         });
         newPropertiesBuilder.put(CatalogProperties.WAREHOUSE_LOCATION, s3aURI);
-        if (properties.containsKey(LakeFSProperties.WAREHOUSE_PREFIX)) {
-            LOG.info("LakeFS catalog initialized with warehouse prefix: {}",
-                    properties.get(LakeFSProperties.WAREHOUSE_PREFIX));
-        }
         super.initialize(name, newPropertiesBuilder.build());
     }
 }
