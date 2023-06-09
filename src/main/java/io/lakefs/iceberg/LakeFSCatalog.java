@@ -1,41 +1,21 @@
 package io.lakefs.iceberg;
 
 // TODO lynn: Go over import list
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.RemoteIterator;
-import org.apache.iceberg.exceptions.RuntimeIOException;
-import org.apache.iceberg.io.BulkDeletionFailureException;
-import org.apache.iceberg.io.FileIO;
-import org.apache.iceberg.io.FileInfo;
-import org.apache.iceberg.io.InputFile;
-import org.apache.iceberg.io.OutputFile;
-import org.apache.iceberg.io.SupportsBulkOperations;
-import org.apache.iceberg.io.SupportsPrefixOperations;
-import org.apache.iceberg.relocated.com.google.common.collect.ImmutableMap;
-import org.apache.iceberg.relocated.com.google.common.collect.Streams;
-import org.apache.iceberg.util.SerializableMap;
-import org.apache.iceberg.util.SerializableSupplier;
-import org.apache.iceberg.util.Tasks;
-import org.apache.iceberg.util.ThreadPools;
-import org.apache.iceberg.CatalogProperties;
-import org.apache.iceberg.hadoop.HadoopCatalog;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.util.Map;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.fs.Path;
+import org.apache.iceberg.CatalogProperties;
+import org.apache.iceberg.TableOperations;
+import org.apache.iceberg.catalog.TableIdentifier;
+import org.apache.iceberg.hadoop.HadoopCatalog;
+import org.apache.iceberg.util.LocationUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 public class LakeFSCatalog extends HadoopCatalog {
     private static final Logger LOG = LoggerFactory.getLogger(LakeFSCatalog.class);
@@ -72,10 +52,9 @@ public class LakeFSCatalog extends HadoopCatalog {
 
     @Override
     protected TableOperations newTableOps(TableIdentifier identifier) {
-//        String lakeFSBranch = StringUtils.substringBetween(identifier.toString(), "/", "."); // exctract branch from table
-        String lakeFSBranch = "branch-a";
-        return new LakeFSTableOperations(
-                new Path(defaultWarehouseLocation(identifier)), fileIO, conf, lockManager, this.lakeFSRepo, lakeFSBranch);
+        String lakeFSRef = identifier.namespace().levels()[identifier.namespace().length() - 2]; // TODO(yoni) just an example - test this
+        TableOperations hadoopTableOps = super.newTableOps(identifier);
+        return new LakeFSTableOperations(hadoopTableOps, lakeFSRepo, lakeFSRef);
     }
 
     @Override
