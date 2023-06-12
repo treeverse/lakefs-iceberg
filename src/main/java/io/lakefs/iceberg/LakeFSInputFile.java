@@ -5,9 +5,8 @@ import org.apache.iceberg.io.InputFile;
 import org.apache.iceberg.io.SeekableInputStream;
 
 public class LakeFSInputFile implements InputFile {
-
     private final InputFile wrapped;
-    
+
     public LakeFSInputFile(InputFile wrapped) {
         this.wrapped = wrapped;
     }

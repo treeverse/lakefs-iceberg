@@ -6,12 +6,6 @@ import org.apache.iceberg.io.OutputFile;
 import org.apache.iceberg.io.PositionOutputStream;
 
 public class LakeFSOutputFile implements OutputFile {
-
-//    private final FileSystem fs;
-//    private final Path path;
-//    private final Configuration conf;
-//    private NativeFileCryptoParameters nativeEncryptionParameters;
-
     private final OutputFile wrapped;
     
     public LakeFSOutputFile(OutputFile wrapped) {
@@ -30,18 +24,6 @@ public class LakeFSOutputFile implements OutputFile {
         return wrapped.createOrOverwrite();
     }
 
-//    public Path getPath() {
-//        return wrapped.getPath();
-//    }
-//
-//    public Configuration getConf(){
-//        return wrapped.getConf();
-//    }
-
-//    public FileSystem getFileSystem() {
-//        return wrapped.getFileSystem();
-//    }
-
     @Override
     public String location() {
         String location = wrapped.location();
@@ -54,23 +36,4 @@ public class LakeFSOutputFile implements OutputFile {
     public InputFile toInputFile() {
         return wrapped.toInputFile();
     }
-
-//    public String toString() {
-//        return location();
-//    }
-//
-//    public NativeFileCryptoParameters nativeCryptoParameters() {
-//        return wrapped.nativeCryptoParameters();
-//    }
-//
-//
-//    public void setNativeCryptoParameters(NativeFileCryptoParameters nativeCryptoParameters) {
-//        wrapped.setNativeCryptoParameters(nativeCryptoParameters);
-//    }
-//
-//
-//    public Configuration conf() {
-//
-//        return wrapped.conf();
-//    }
 }
