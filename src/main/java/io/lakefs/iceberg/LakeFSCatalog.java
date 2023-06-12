@@ -10,10 +10,7 @@ import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.hadoop.HadoopCatalog;
 import org.apache.iceberg.util.LocationUtil;
 
-import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class LakeFSCatalog extends HadoopCatalog {
     private static final String LAKEFS_SCHEME = "lakefs";
