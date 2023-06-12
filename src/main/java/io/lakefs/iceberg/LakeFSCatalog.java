@@ -28,8 +28,8 @@ public class LakeFSCatalog extends HadoopCatalog {
         Preconditions.checkArgument(lakefsRepositoryURI.matches("lakefs://[^/]+"),
                 "Warehouse path must be a lakeFS repository URI without a path (e.g. lakefs://example-repo)");
         String fileioImpl = properties.get(CatalogProperties.FILE_IO_IMPL);
-        Preconditions.checkArgument(fileioImpl.equals(LakeFSProperties.LAKEFS_FILE_IO_IMPL),
-                "FileIO impl must be lakeFS FileIO");
+//        Preconditions.checkArgument(fileioImpl.equals(LakeFSProperties.LAKEFS_FILE_IO_IMPL),
+//                "FileIO impl must be lakeFS FileIO");
         this.lakeFSRepo = StringUtils.substringAfter(LocationUtil.stripTrailingSlash(lakefsRepositoryURI), "//");
         String s3aURI = lakefsRepositoryURI.replaceFirst(LAKEFS_SCHEME, "s3a");
         if (properties.get(LakeFSProperties.URI_PREFIX_REPLACE_FROM) != null && !properties.get(LakeFSProperties.URI_PREFIX_REPLACE_FROM).isEmpty()) {

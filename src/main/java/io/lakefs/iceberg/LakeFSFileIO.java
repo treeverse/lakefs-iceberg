@@ -1,93 +1,79 @@
 package io.lakefs.iceberg;
 
-// TODO lynn: Go over import list
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
+import com.google.common.collect.ImmutableMap;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.RemoteIterator;
-import org.apache.iceberg.exceptions.RuntimeIOException;
-import org.apache.iceberg.io.BulkDeletionFailureException;
+import org.apache.iceberg.hadoop.HadoopInputFile;
+import org.apache.iceberg.hadoop.HadoopOutputFile;
 import org.apache.iceberg.io.FileIO;
-import org.apache.iceberg.io.FileInfo;
 import org.apache.iceberg.io.InputFile;
 import org.apache.iceberg.io.OutputFile;
-import org.apache.iceberg.io.SupportsBulkOperations;
-import org.apache.iceberg.io.SupportsPrefixOperations;
-import org.apache.iceberg.relocated.com.google.common.collect.ImmutableMap;
-import org.apache.iceberg.relocated.com.google.common.collect.Streams;
 import org.apache.iceberg.util.SerializableMap;
 import org.apache.iceberg.util.SerializableSupplier;
-import org.apache.iceberg.util.Tasks;
-import org.apache.iceberg.util.ThreadPools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class LakeFSFileIO extends HadoopFileIO {
+import java.util.Map;
 
-    String lakeFSRepo = "example-repo";
-    String lakeFSBranch = "branch-a";
+public class LakeFSFileIO implements FileIO {
+
+    FileIO wrapped;
+
+    String lakeFSRepo;
+    String lakeFSRef;
 
     private SerializableSupplier<Configuration> hadoopConf;
     private SerializableMap<String, String> properties = SerializableMap.copyOf(ImmutableMap.of());
 
 
-    public LakeFSFileIO() {}
-
-    public LakeFSFileIO(Configuration hadoopConf) {
-        this(new SerializableConfiguration(hadoopConf)::get);
+    public LakeFSFileIO(FileIO wrapped, String lakeFSRepo, String lakeFSRef) {
+        this.wrapped = wrapped;
+        this.lakeFSRepo = lakeFSRepo;
+        this.lakeFSRef = lakeFSRef;
     }
 
-    public LakeFSFileIO(SerializableSupplier<Configuration> hadoopConf) {
+    public LakeFSFileIO(FileIO wrapped, String lakeFSRepo, String lakeFSRef, SerializableSupplier<Configuration> hadoopConf) {
+        this.wrapped = wrapped;
+        this.lakeFSRepo = lakeFSRepo;
+        this.lakeFSRef = lakeFSRef;
         this.hadoopConf = hadoopConf;
-    }
-
-    public Configuration conf() {
-        return hadoopConf.get();
     }
 
     @Override
     public void initialize(Map<String, String> props) {
         this.properties = SerializableMap.copyOf(props);
     }
+    
+    @Override
+    public Map<String, String> properties() {
+        return wrapped.properties();
+    }
+
 
     @Override
     public InputFile newInputFile(String path) {
         if (!path.startsWith("s3a://")){
-            path = "s3a://" + lakeFSRepo + "/" + lakeFSBranch + "/" + path;
+            path = "s3a://" + lakeFSRepo + "/" + lakeFSRef + "/" + path;
         }
-        return new LakeFSInputFile(HadoopInputFile.fromLocation(path, hadoopConf.get()));
+        return new LakeFSInputFile(wrapped.newInputFile(path));
     }
 
     @Override
     public InputFile newInputFile(String path, long length) {
         if (!path.startsWith("s3a://")){
-            path = "s3a://" + lakeFSRepo + "/" + lakeFSBranch + "/" + path;
+            path = "s3a://" + lakeFSRepo + "/" + lakeFSRef + "/" + path;
         }
-        return new LakeFSInputFile(HadoopInputFile.fromLocation(path, length, hadoopConf.get());
+        return new LakeFSInputFile(wrapped.newInputFile(path, length));
     }
 
     @Override
     public OutputFile newOutputFile(String path) {
-        String newPath = path;
         if (!path.startsWith("s3a://")){
-            path = "s3a://" + lakeFSRepo + "/" + lakeFSBranch + "/" + path;
+            path = "s3a://" + lakeFSRepo + "/" + lakeFSRef + "/" + path;
         }
-        return new LakeFSOutputFile(HadoopOutputFile.fromPath(new Path(path), hadoopConf.get()));
+        return new LakeFSOutputFile(wrapped.newOutputFile(path));
     }
-    
-//    public void setLakeFSRepo(String lakeFSRepo){
-//        this.lakeFSRepo = lakeFSRepo;
-//    }
-//
-//    public void setLakeFSBranch(String lakeFSBranch){
-//        this.lakeFSBranch = lakeFSBranch;
-//    }
+
+    @Override
+    public void deleteFile(String path){
+        wrapped.deleteFile(path);
+    }
 }
