@@ -19,8 +19,6 @@ public class TestLakeFSSpark {
         SparkConf conf = new SparkConf();
         conf.set("spark.sql.catalog.lakefs", "org.apache.iceberg.spark.SparkCatalog");
         conf.set("spark.sql.catalog.lakefs.catalog-impl", "io.lakefs.iceberg.LakeFSCatalog");
-//        conf.set("spark.sql.catalog.lakefs.type", "hadoop");
-        conf.set("spark.sql.catalog.lakefs.io-impl", "io.lakefs.iceberg.LakeFSFileIO");
         conf.set("spark.sql.catalog.lakefs.warehouse", "lakefs://example-repo");
         conf.set("spark.sql.extensions",
                 "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions");
@@ -34,17 +32,16 @@ public class TestLakeFSSpark {
     
         String catalog = "lakefs";
         String db = "db";
-        String table = "example-table";
-        String repo = "example-repo";
-        String branch = "branch-a";
-        spark.sql(String.format("CREATE SCHEMA IF NOT EXISTS %s.`/%s`.%s", catalog, branch, db));
-        spark.sql(String.format("CREATE TABLE IF NOT EXISTS  %s.`/%s`.%s.`%s` (val int) OPTIONS ('format-version'=2)", catalog, branch, db, table));
+        String table = "mytable";
+        String branch = "main";
+        spark.sql(String.format("CREATE SCHEMA IF NOT EXISTS %s.%s.%s", catalog, branch, db));
+        spark.sql(String.format("CREATE TABLE IF NOT EXISTS  %s.%s.%s.%s (val int) OPTIONS ('format-version'=2)", catalog, branch, db, table));
         StructType schema = new StructType(new StructField[]{
                 DataTypes.createStructField("val", DataTypes.IntegerType, false)
         });
         Row row = RowFactory.create(10);
         Dataset<Row> df = spark.createDataFrame(List.of(row), schema).toDF("val");
-        df.writeTo(String.format("%s.`/%s`.%s.`%s`", catalog, branch, db, table)).append();
-        spark.sql(String.format("SELECT * FROM %s.`/%s`.%s.`%s`", catalog, branch, db, table)).show();
+        df.writeTo(String.format("%s.%s.%s.%s", catalog, branch, db, table)).append();
+        spark.sql(String.format("SELECT * FROM %s.%s.%s.%s", catalog, branch, db, table)).show();
     }
 }

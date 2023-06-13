@@ -1,56 +1,26 @@
 package io.lakefs.iceberg;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.iceberg.io.FileIO;
+import org.apache.iceberg.hadoop.HadoopFileIO;
 import org.apache.iceberg.io.InputFile;
 import org.apache.iceberg.io.OutputFile;
-import org.apache.iceberg.util.SerializableMap;
-import org.apache.iceberg.util.SerializableSupplier;
 
-import java.util.Map;
-
-public class LakeFSFileIO implements FileIO {
-
-    private FileIO wrapped;
+public class LakeFSFileIO extends HadoopFileIO {
     private String lakeFSRepo;
     private String lakeFSRef;
-    private SerializableSupplier<Configuration> hadoopConf;
-    private SerializableMap<String, String> properties = SerializableMap.copyOf(ImmutableMap.of());
 
-    public LakeFSFileIO() {
-    }
-
-    public LakeFSFileIO(FileIO wrapped, String lakeFSRepo, String lakeFSRef) {
-        this.wrapped = wrapped;
+    public LakeFSFileIO(Configuration hadoopConf, String lakeFSRepo, String lakeFSRef) {
+        super(hadoopConf);
         this.lakeFSRepo = lakeFSRepo;
         this.lakeFSRef = lakeFSRef;
     }
-
-    public LakeFSFileIO(FileIO wrapped, String lakeFSRepo, String lakeFSRef, SerializableSupplier<Configuration> hadoopConf) {
-        this.wrapped = wrapped;
-        this.lakeFSRepo = lakeFSRepo;
-        this.lakeFSRef = lakeFSRef;
-        this.hadoopConf = hadoopConf;
-    }
-
-    @Override
-    public void initialize(Map<String, String> props) {
-        this.properties = SerializableMap.copyOf(props);
-    }
-    
-    @Override
-    public Map<String, String> properties() {
-        return wrapped.properties();
-    }
-
 
     @Override
     public InputFile newInputFile(String path) {
         if (!path.startsWith("s3a://")){
             path = "s3a://" + lakeFSRepo + "/" + lakeFSRef + "/" + path;
         }
-        return new LakeFSInputFile(wrapped.newInputFile(path));
+        return new LakeFSInputFile(super.newInputFile(path));
     }
 
     @Override
@@ -58,7 +28,7 @@ public class LakeFSFileIO implements FileIO {
         if (!path.startsWith("s3a://")){
             path = "s3a://" + lakeFSRepo + "/" + lakeFSRef + "/" + path;
         }
-        return new LakeFSInputFile(wrapped.newInputFile(path, length));
+        return new LakeFSInputFile(super.newInputFile(path, length));
     }
 
     @Override
@@ -66,11 +36,11 @@ public class LakeFSFileIO implements FileIO {
         if (!path.startsWith("s3a://")){
             path = "s3a://" + lakeFSRepo + "/" + lakeFSRef + "/" + path;
         }
-        return new LakeFSOutputFile(wrapped.newOutputFile(path));
+        return new LakeFSOutputFile(super.newOutputFile(path));
     }
 
     @Override
     public void deleteFile(String path){
-        wrapped.deleteFile(path);
+        super.deleteFile(path);
     }
 }

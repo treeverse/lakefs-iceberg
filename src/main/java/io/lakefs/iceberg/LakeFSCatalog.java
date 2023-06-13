@@ -4,8 +4,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.fs.Path;
 import org.apache.iceberg.CatalogProperties;
 import org.apache.iceberg.TableOperations;
+import org.apache.iceberg.catalog.Namespace;
 import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.hadoop.HadoopCatalog;
 import org.apache.iceberg.util.LocationUtil;
@@ -37,11 +39,17 @@ public class LakeFSCatalog extends HadoopCatalog {
         super.initialize(name, newPropertiesBuilder.build());
     }
 
+    public Map<String, String> loadNamespaceMetadata(Namespace namespace) {
+        return ImmutableMap.of("location",
+                new Path("s3a://" + lakeFSRepo + "/", StringUtils.join(namespace.levels(), "/")).toString());
+    }
+
     @Override
     protected TableOperations newTableOps(TableIdentifier identifier) {
         String lakeFSRef = identifier.namespace().levels()[identifier.namespace().length() - 2]; // TODO(yoni) just an example - test this
-        TableOperations hadoopTableOps = super.newTableOps(identifier);
-        return new LakeFSTableOperations(hadoopTableOps, lakeFSRepo, lakeFSRef);
+        LakeFSFileIO fileIO = new LakeFSFileIO(getConf(), lakeFSRepo, lakeFSRef);
+        String location = "s3a://" + lakeFSRepo + "/" + lakeFSRef + "/" + defaultWarehouseLocation(identifier);
+        return new LakeFSTableOperations(new Path(location), fileIO, getConf());
     }
 
     @Override
