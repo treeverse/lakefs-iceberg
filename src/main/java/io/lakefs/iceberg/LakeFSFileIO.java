@@ -2,9 +2,6 @@ package io.lakefs.iceberg;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-import org.apache.iceberg.hadoop.HadoopInputFile;
-import org.apache.iceberg.hadoop.HadoopOutputFile;
 import org.apache.iceberg.io.FileIO;
 import org.apache.iceberg.io.InputFile;
 import org.apache.iceberg.io.OutputFile;
@@ -15,14 +12,11 @@ import java.util.Map;
 
 public class LakeFSFileIO implements FileIO {
 
-    FileIO wrapped;
-
-    String lakeFSRepo;
-    String lakeFSRef;
-
+    private FileIO wrapped;
+    private String lakeFSRepo;
+    private String lakeFSRef;
     private SerializableSupplier<Configuration> hadoopConf;
     private SerializableMap<String, String> properties = SerializableMap.copyOf(ImmutableMap.of());
-
 
     public LakeFSFileIO(FileIO wrapped, String lakeFSRepo, String lakeFSRef) {
         this.wrapped = wrapped;
