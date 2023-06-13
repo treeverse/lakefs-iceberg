@@ -18,6 +18,9 @@ public class LakeFSFileIO implements FileIO {
     private SerializableSupplier<Configuration> hadoopConf;
     private SerializableMap<String, String> properties = SerializableMap.copyOf(ImmutableMap.of());
 
+    public LakeFSFileIO() {
+    }
+
     public LakeFSFileIO(FileIO wrapped, String lakeFSRepo, String lakeFSRef) {
         this.wrapped = wrapped;
         this.lakeFSRepo = lakeFSRepo;
