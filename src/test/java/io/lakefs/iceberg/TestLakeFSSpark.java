@@ -17,32 +17,34 @@ public class TestLakeFSSpark {
     @Test
     public void testLakeFSWithSpark() throws NoSuchTableException {
         SparkConf conf = new SparkConf();
-        conf.set("spark.sql.catalog.hadoop", "org.apache.iceberg.spark.SparkCatalog");
-        conf.set("spark.sql.catalog.hadoop.type", "hadoop");
-        conf.set("spark.sql.catalog.hadoop.io-impl", "io.lakefs.iceberg.LakeFSFileIO");
-        conf.set("spark.sql.catalog.hadoop.warehouse", "s3a://example-repo/main/wh/");
+        conf.set("spark.sql.catalog.lakefs", "org.apache.iceberg.spark.SparkCatalog");
+        conf.set("spark.sql.catalog.lakefs.catalog-impl", "io.lakefs.iceberg.LakeFSCatalog");
+//        conf.set("spark.sql.catalog.lakefs.type", "hadoop");
+        conf.set("spark.sql.catalog.lakefs.io-impl", "io.lakefs.iceberg.LakeFSFileIO");
+        conf.set("spark.sql.catalog.lakefs.warehouse", "lakefs://example-repo");
         conf.set("spark.sql.extensions",
                 "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions");
 
-        conf.set("spark.hadoop.fs.s3a.access.key", "");
-        conf.set("spark.hadoop.fs.s3a.secret.key", "");
-
-        conf.set("spark.hadoop.fs.s3a.endpoint", "http://localhost:8000");
+        conf.set("spark.hadoop.fs.s3a.access.key", "AKIAIOSFODNN7EXAMPLE");
+        conf.set("spark.hadoop.fs.s3a.secret.key", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY");
+        conf.set("spark.hadoop.fs.s3a.endpoint", "http://localhost:8084");
         conf.set("spark.hadoop.fs.s3a.path.style.access", "true");
 
         SparkSession spark = SparkSession.builder().master("local").config(conf).getOrCreate();
     
-        String catalog = "hadoop";
+        String catalog = "lakefs";
+        String db = "db";
         String table = "example-table";
-        spark.sql(String.format("CREATE SCHEMA IF NOT EXISTS %s.db", catalog));
-        spark.sql(String.format("CREATE TABLE  IF NOT EXISTS  %s.db.`%s` (val int) OPTIONS ('format-version'=2)", catalog, table));
+        String repo = "example-repo";
+        String branch = "branch-a";
+        spark.sql(String.format("CREATE SCHEMA IF NOT EXISTS %s.`/%s`.%s", catalog, branch, db));
+        spark.sql(String.format("CREATE TABLE IF NOT EXISTS  %s.`/%s`.%s.`%s` (val int) OPTIONS ('format-version'=2)", catalog, branch, db, table));
         StructType schema = new StructType(new StructField[]{
                 DataTypes.createStructField("val", DataTypes.IntegerType, false)
         });
         Row row = RowFactory.create(10);
         Dataset<Row> df = spark.createDataFrame(List.of(row), schema).toDF("val");
-        df.writeTo(String.format("%s.db.`%s`", catalog, table)).append();
-        spark.sql(String.format("SELECT * FROM %s.db.`%s`", catalog, table)).show();
-    
+        df.writeTo(String.format("%s.`/%s`.%s.`%s`", catalog, branch, db, table)).append();
+        spark.sql(String.format("SELECT * FROM %s.`/%s`.%s.`%s`", catalog, branch, db, table)).show();
     }
 }
