@@ -38,7 +38,7 @@ public class LakeFSFileIO implements FileIO {
     public void initialize(Map<String, String> props) {
         this.properties = SerializableMap.copyOf(props);
     }
-    
+
     @Override
     public Map<String, String> properties() {
         return wrapped.properties();

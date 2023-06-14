@@ -1,36 +1,18 @@
 package io.lakefs.iceberg;
 
-
-// TODO lynn: Go over import list
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.iceberg.TableMetadata;
-import org.apache.iceberg.TableOperations;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.iceberg.hadoop.HadoopTableOperations;
 import org.apache.iceberg.io.FileIO;
-import org.apache.iceberg.io.LocationProvider;
+import org.apache.iceberg.util.LockManagers;
 
-public class LakeFSTableOperations implements TableOperations {
-    TableOperations wrapped;
+public class LakeFSTableOperations extends HadoopTableOperations {
     FileIO fileIO;
 
-    public LakeFSTableOperations(TableOperations wrapped, String lakeFSRepo, String lakeFSRef) {
-        this.wrapped = wrapped;
-        this.fileIO = new LakeFSFileIO(wrapped.io(), lakeFSRepo, lakeFSRef);
-    }
-
-    @Override
-    public TableMetadata current() {
-        return wrapped.current();
-    }
-
-    @Override
-    public TableMetadata refresh() {
-        return wrapped.refresh();
-    }
-
-    @Override
-    public void commit(TableMetadata base, TableMetadata metadata) {
-        wrapped.commit(base, metadata);
+    public LakeFSTableOperations(Path location, FileIO fileIO, Configuration conf) {
+        super(location, fileIO, conf, LockManagers.defaultLockManager());
+        this.fileIO = fileIO;
     }
 
     @Override
@@ -38,17 +20,15 @@ public class LakeFSTableOperations implements TableOperations {
         return fileIO;
     }
 
-    @Override
-    public String metadataFileLocation(String fileName) {
-        String path = wrapped.metadataFileLocation(fileName);
-        path = StringUtils.substringAfter(path, "//");
-        path = StringUtils.substringAfter(path, "/");
-        path = StringUtils.substringAfter(path, "/");
-        return path;
-    }
 
     @Override
-    public LocationProvider locationProvider() {
-        return wrapped.locationProvider();
+    public String metadataFileLocation(String fileName) {
+        String path = super.metadataFileLocation(fileName);
+        if (path.startsWith("s3a://")) {
+            path = StringUtils.substringAfter(path, "//");
+            path = StringUtils.substringAfter(path, "/");
+            path = StringUtils.substringAfter(path, "/");
+        }
+        return path;
     }
 }
