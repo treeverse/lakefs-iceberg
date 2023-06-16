@@ -3,7 +3,7 @@ name: publish-artifact
 on:
   release:
     types: [released]
-  dispatch:
+  workflow_dispatch:
 jobs:
   deploy:
     runs-on: ubuntu-20.04
