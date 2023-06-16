@@ -31,7 +31,6 @@ jobs:
           server-password: MAVEN_PASSWORD
 
       - name: Build and publish package
-        working-directory: clients/java
         run: mvn --batch-mode deploy --activate-profiles sign-artifacts
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
