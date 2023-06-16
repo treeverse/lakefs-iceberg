@@ -140,7 +140,7 @@
     </dependencies>
     <profiles>
         <profile>
-            <id>treeverse-signing</id>
+            <id>sign-artifacts</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
