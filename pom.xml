@@ -152,14 +152,16 @@
                         <version>3.1.0</version>
                         <configuration>
                             <keyname>F638279A7281EE8EAE58C4B98D3CFE7E7D0262DA</keyname>
-                            <gpgArguments>
-                                <arg>--pinentry-mode</arg>
-                                <arg>loopback</arg>
-                            </gpgArguments>
                         </configuration>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
+                                <configuration>
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
                                 <phase>verify</phase>
                                 <goals>
                                     <goal>sign</goal>
