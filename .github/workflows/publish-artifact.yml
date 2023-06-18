@@ -4,6 +4,9 @@ on:
   release:
     types: [released]
   workflow_dispatch:
+  push:
+    branches:
+      - fix_publish_workflow
 jobs:
   deploy:
     runs-on: ubuntu-20.04
