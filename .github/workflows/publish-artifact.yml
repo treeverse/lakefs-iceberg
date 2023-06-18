@@ -4,9 +4,6 @@ on:
   release:
     types: [released]
   workflow_dispatch:
-  push:
-    branches:
-      - fix_publish_workflow
 jobs:
   deploy:
     runs-on: ubuntu-20.04
@@ -27,8 +24,8 @@ jobs:
           server-id: ossrh
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
-          gpg-private-key: ${{ secrets.OSSRH_GPG_SECRET_KEY }} # Value of the GPG private key to import
-          gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
+          gpg-private-key: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
       - name: Build and publish package
         run: mvn -DskipTests --batch-mode deploy --activate-profiles sign-artifacts
         env:
