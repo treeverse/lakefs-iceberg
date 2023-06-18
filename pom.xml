@@ -158,6 +158,7 @@
                                 <id>sign-artifacts</id>
                                 <configuration>
                                     <gpgArguments>
+                                        <arg>-v</arg>
                                         <arg>--pinentry-mode</arg>
                                         <arg>loopback</arg>
                                     </gpgArguments>
