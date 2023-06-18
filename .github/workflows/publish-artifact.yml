@@ -29,6 +29,7 @@ jobs:
           server-id: ossrh
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
+      - run: cat /home/runner/.gnupg/gpg.conf
       - name: Build and publish package
         shell: 'script --return --quiet --command "bash {0}"'
         run: mvn -DskipTests --no-transfer-progress --batch-mode deploy --activate-profiles sign-artifacts
