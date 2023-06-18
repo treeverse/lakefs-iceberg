@@ -149,7 +149,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.1.0</version>
+                        <version>1.6</version>
                         <configuration>
                             <keyname>F638279A7281EE8EAE58C4B98D3CFE7E7D0262DA</keyname>
                         </configuration>
