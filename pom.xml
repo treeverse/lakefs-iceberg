@@ -156,6 +156,13 @@
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
+                                <configuration>
+                                    <gpgArguments>
+                                        <arg>-v</arg>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
                                 <phase>verify</phase>
                                 <goals>
                                     <goal>sign</goal>
