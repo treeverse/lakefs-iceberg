@@ -25,9 +25,7 @@ public class LakeFSTableOperations extends HadoopTableOperations {
     public String metadataFileLocation(String fileName) {
         String path = super.metadataFileLocation(fileName);
         if (path.startsWith("s3a://")) {
-            path = StringUtils.substringAfter(path, "//");
-            path = StringUtils.substringAfter(path, "/");
-            path = StringUtils.substringAfter(path, "/");
+            path = Util.GetPath(path);
         }
         return path;
     }

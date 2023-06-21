@@ -14,10 +14,7 @@ public class LakeFSInputFile implements InputFile {
     @Override
     public String location() {
         String location = wrapped.location();
-        location = StringUtils.substringAfter(location, "//");
-        location = StringUtils.substringAfter(location, "/");
-        location = StringUtils.substringAfter(location, "/");
-        return location;
+        return Util.GetPath(location);
     }
 
     @Override

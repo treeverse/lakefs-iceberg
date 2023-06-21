@@ -12,6 +12,9 @@ import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.hadoop.HadoopCatalog;
 import org.apache.iceberg.hadoop.HadoopFileIO;
 import org.apache.iceberg.util.LocationUtil;
+import org.apache.iceberg.exceptions.NoSuchTableException;
+
+import java.util.Arrays;
 
 import java.util.Map;
 
@@ -47,9 +50,11 @@ public class LakeFSCatalog extends HadoopCatalog {
 
     @Override
     protected TableOperations newTableOps(TableIdentifier identifier) {
+        Preconditions.checkArgument(
+                identifier.namespace().levels().length >= 2, "Missing database in table identifier: %s", identifier);
         String lakeFSRef = identifier.namespace().levels()[identifier.namespace().length() - 2]; // TODO(yoni) just an example - test this
         LakeFSFileIO fileIO = new LakeFSFileIO(new HadoopFileIO(getConf()), lakeFSRepo, lakeFSRef);
-        String location = "s3a://" + lakeFSRepo + "/" + lakeFSRef + "/" + defaultWarehouseLocation(identifier);
+        String location = String.format("s3a://%s/%s/%s", lakeFSRepo, lakeFSRef, defaultWarehouseLocation(identifier));
         return new LakeFSTableOperations(new Path(location), fileIO, getConf());
     }
 

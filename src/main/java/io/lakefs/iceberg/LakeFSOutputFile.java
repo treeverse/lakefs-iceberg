@@ -27,10 +27,7 @@ public class LakeFSOutputFile implements OutputFile {
     @Override
     public String location() {
         String location = wrapped.location();
-        location = StringUtils.substringAfter(location, "//");
-        location = StringUtils.substringAfter(location, "/");
-        location = StringUtils.substringAfter(location, "/");
-        return location;
+        return Util.GetPath(location);
     }
 
     public InputFile toInputFile() {
