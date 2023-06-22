@@ -1,6 +1,5 @@
 package io.lakefs.iceberg;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.iceberg.io.InputFile;
 import org.apache.iceberg.io.OutputFile;
 import org.apache.iceberg.io.PositionOutputStream;
@@ -27,10 +26,7 @@ public class LakeFSOutputFile implements OutputFile {
     @Override
     public String location() {
         String location = wrapped.location();
-        location = StringUtils.substringAfter(location, "//");
-        location = StringUtils.substringAfter(location, "/");
-        location = StringUtils.substringAfter(location, "/");
-        return location;
+        return Util.GetPathFromURL(location);
     }
 
     public InputFile toInputFile() {

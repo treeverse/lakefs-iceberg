@@ -48,7 +48,7 @@ public class LakeFSFileIO implements FileIO {
     @Override
     public InputFile newInputFile(String path) {
         if (!path.startsWith("s3a://")){
-            path = "s3a://" + lakeFSRepo + "/" + lakeFSRef + "/" + path;
+            path = String.format("s3a://%s/%s/%s", lakeFSRepo, lakeFSRef, path);
         }
         return new LakeFSInputFile(wrapped.newInputFile(path));
     }
@@ -56,7 +56,7 @@ public class LakeFSFileIO implements FileIO {
     @Override
     public InputFile newInputFile(String path, long length) {
         if (!path.startsWith("s3a://")){
-            path = "s3a://" + lakeFSRepo + "/" + lakeFSRef + "/" + path;
+            path = String.format("s3a://%s/%s/%s", lakeFSRepo, lakeFSRef, path);
         }
         return new LakeFSInputFile(wrapped.newInputFile(path, length));
     }
@@ -64,7 +64,7 @@ public class LakeFSFileIO implements FileIO {
     @Override
     public OutputFile newOutputFile(String path) {
         if (!path.startsWith("s3a://")){
-            path = "s3a://" + lakeFSRepo + "/" + lakeFSRef + "/" + path;
+            path = String.format("s3a://%s/%s/%s", lakeFSRepo, lakeFSRef, path);
         }
         return new LakeFSOutputFile(wrapped.newOutputFile(path));
     }
