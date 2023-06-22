@@ -1,4 +1,4 @@
-## lakeFS Icerberg Catalog
+## lakeFS Iceberg Catalog
 
 lakeFS enriches your Iceberg tables with Git capabilities: create a branch and make your changes in isolation, without affecting other team members.
 
