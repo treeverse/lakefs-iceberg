@@ -6,7 +6,7 @@ public class Util {
 
     private Util() {}
 
-    public static String GetPath(String lakeFSLocation){
+    public static String GetPathFromURL(String lakeFSLocation){
         // return sub string after lakeFS ref
         return StringUtils.substring(lakeFSLocation, StringUtils.ordinalIndexOf(lakeFSLocation, "/", 4) + 1);
     }

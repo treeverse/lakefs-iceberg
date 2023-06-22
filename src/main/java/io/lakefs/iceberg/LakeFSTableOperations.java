@@ -1,6 +1,5 @@
 package io.lakefs.iceberg;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.iceberg.hadoop.HadoopTableOperations;
@@ -25,7 +24,7 @@ public class LakeFSTableOperations extends HadoopTableOperations {
     public String metadataFileLocation(String fileName) {
         String path = super.metadataFileLocation(fileName);
         if (path.startsWith("s3a://")) {
-            path = Util.GetPath(path);
+            path = Util.GetPathFromURL(path);
         }
         return path;
     }

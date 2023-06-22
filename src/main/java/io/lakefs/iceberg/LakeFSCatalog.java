@@ -12,10 +12,6 @@ import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.hadoop.HadoopCatalog;
 import org.apache.iceberg.hadoop.HadoopFileIO;
 import org.apache.iceberg.util.LocationUtil;
-import org.apache.iceberg.exceptions.NoSuchTableException;
-
-import java.util.Arrays;
-
 import java.util.Map;
 
 public class LakeFSCatalog extends HadoopCatalog {

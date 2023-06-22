@@ -1,6 +1,5 @@
 package io.lakefs.iceberg;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.iceberg.io.InputFile;
 import org.apache.iceberg.io.SeekableInputStream;
 
@@ -14,7 +13,7 @@ public class LakeFSInputFile implements InputFile {
     @Override
     public String location() {
         String location = wrapped.location();
-        return Util.GetPath(location);
+        return Util.GetPathFromURL(location);
     }
 
     @Override
