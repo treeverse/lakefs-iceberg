@@ -63,7 +63,7 @@ public class LakeFSInputFile implements InputFile {
 
         @Override
         public void close() throws IOException {
-            wrapped.close();
+             wrapped.close();
         }
     }
 }

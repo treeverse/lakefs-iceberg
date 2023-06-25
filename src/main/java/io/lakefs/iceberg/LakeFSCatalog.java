@@ -12,6 +12,8 @@ import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.hadoop.HadoopCatalog;
 import org.apache.iceberg.hadoop.HadoopFileIO;
 import org.apache.iceberg.util.LocationUtil;
+
+import java.io.IOException;
 import java.util.Map;
 
 public class LakeFSCatalog extends HadoopCatalog {
@@ -20,6 +22,8 @@ public class LakeFSCatalog extends HadoopCatalog {
 
     @Override
     public void initialize(String name, Map<String, String> properties) {
+        System.out.println("CONSTRUCTOR CALLED");
+
         String lakefsRepositoryURI = properties.get(CatalogProperties.WAREHOUSE_LOCATION);
         Preconditions.checkArgument(lakefsRepositoryURI.matches("lakefs://[^/]+"),
                 "Warehouse path must be a lakeFS repository URI without a path (e.g. lakefs://example-repo)");
@@ -35,6 +39,7 @@ public class LakeFSCatalog extends HadoopCatalog {
                 newPropertiesBuilder.put(key, value);
             }
         });
+
         newPropertiesBuilder.put(CatalogProperties.WAREHOUSE_LOCATION, s3aURI);
         super.initialize(name, newPropertiesBuilder.build());
     }
@@ -64,5 +69,14 @@ public class LakeFSCatalog extends HadoopCatalog {
         }
         sb.append(tableName);
         return sb.toString();
+    }
+
+    @Override
+    public void close() throws IOException {
+        // log something
+        System.out.println("Closing LakeFS Catalog");
+        System.out.println(Thread.currentThread().getStackTrace().toString());
+
+        super.close();
     }
 }
