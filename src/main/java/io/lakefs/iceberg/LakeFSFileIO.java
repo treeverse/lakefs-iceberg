@@ -1,6 +1,5 @@
 package io.lakefs.iceberg;
 
-import org.apache.hadoop.fs.Path;
 import org.apache.iceberg.hadoop.HadoopFileIO;
 import org.apache.iceberg.hadoop.HadoopInputFile;
 import org.apache.iceberg.hadoop.HadoopOutputFile;
