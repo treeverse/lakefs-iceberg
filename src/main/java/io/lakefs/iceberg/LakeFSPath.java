@@ -3,9 +3,8 @@ package io.lakefs.iceberg;
 import org.apache.hadoop.fs.Path;
 
 /**
- * This is a Hadoop path with a dedicated {@link #toString()} implementation for lakeFS,
- * which returns the path relative to the repository root.
- * This Hadoop path is assumed to be a lakeFS path of the form <code>[scheme]://[repo-name]/[ref-name]/rest/of/path/</code>.
+ * This is a Hadoop path with a dedicated {@link #toString()} implementation for lakeFS.
+ * The path is assumed to be a lakeFS path of the form <code>[scheme]://[repo-name]/[ref-name]/rest/of/path/</code>.
  */
 public class LakeFSPath extends Path {
     public LakeFSPath(String pathString) throws IllegalArgumentException {
