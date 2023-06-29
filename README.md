@@ -1,6 +1,10 @@
+<img src="https://docs.lakefs.io/assets/logo.svg" alt="lakeFS logo" width=300/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://www.apache.org/logos/res/iceberg/iceberg.png" alt="Apache Iceberg logo" width=300/>
+
 ## lakeFS Iceberg Catalog
 
 lakeFS enriches your Iceberg tables with Git capabilities: create a branch and make your changes in isolation, without affecting other team members.
+
+See the instructions below on how to use it, and check out the integration in action in the [lakeFS samples repository](https://github.com/treeverse/lakeFS-samples/).
 
 ### Install
 
