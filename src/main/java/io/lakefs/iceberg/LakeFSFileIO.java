@@ -37,12 +37,7 @@ public class LakeFSFileIO implements FileIO {
         if (!path.startsWith("s3a://")) {
             path = String.format("s3a://%s/%s/%s", lakeFSRepo, lakeFSRef, path);
         }
-        return HadoopInputFile.fromPath(new Path(path) {
-            @Override
-            public String toString() {
-                return Util.GetPathFromURL(super.toString());
-            }
-        }, wrapped.conf());
+        return HadoopInputFile.fromPath(new LakeFSPath(path), wrapped.conf());
     }
 
     @Override
@@ -50,12 +45,7 @@ public class LakeFSFileIO implements FileIO {
         if (!path.startsWith("s3a://")) {
             path = String.format("s3a://%s/%s/%s", lakeFSRepo, lakeFSRef, path);
         }
-        return HadoopInputFile.fromPath(new Path(path) {
-            @Override
-            public String toString() {
-                return Util.GetPathFromURL(super.toString());
-            }
-        }, length, wrapped.conf());
+        return HadoopInputFile.fromPath(new LakeFSPath(path), length, wrapped.conf());
     }
 
     @Override
@@ -63,12 +53,7 @@ public class LakeFSFileIO implements FileIO {
         if (!path.startsWith("s3a://")) {
             path = String.format("s3a://%s/%s/%s", lakeFSRepo, lakeFSRef, path);
         }
-        return HadoopOutputFile.fromPath(new Path(path) {
-            @Override
-            public String toString() {
-                return Util.GetPathFromURL(super.toString());
-            }
-        }, wrapped.conf());
+        return HadoopOutputFile.fromPath(new LakeFSPath(path), wrapped.conf());
     }
 
     @Override
