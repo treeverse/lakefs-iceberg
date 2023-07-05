@@ -14,7 +14,7 @@ Use the following Maven dependency to install the lakeFS custom catalog:
 <dependency>
   <groupId>io.lakefs</groupId>
   <artifactId>lakefs-iceberg</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
 </dependency>
 ```
 
