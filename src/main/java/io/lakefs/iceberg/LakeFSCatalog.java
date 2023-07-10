@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.iceberg.CatalogProperties;
 import org.apache.iceberg.TableOperations;
@@ -49,9 +50,11 @@ public class LakeFSCatalog extends HadoopCatalog {
         Preconditions.checkArgument(
                 identifier.namespace().levels().length >= 2, String.format("Missing database in table identifier: %s", identifier));
         String lakeFSRef = identifier.namespace().levels()[identifier.namespace().length() - 2]; // TODO(yoni) just an example - test this
-        LakeFSFileIO fileIO = new LakeFSFileIO(new HadoopFileIO(getConf()), lakeFSRepo, lakeFSRef);
+        Configuration conf = getConf();
+        LakeFSFileIO fileIO = new LakeFSFileIO(new HadoopFileIO(conf), lakeFSRepo, lakeFSRef);
         String location = String.format("s3a://%s/%s/%s", lakeFSRepo, lakeFSRef, defaultWarehouseLocation(identifier));
-        return new LakeFSTableOperations(new Path(location), fileIO, getConf());
+        LakeFSReporter reporter = new LakeFSReporter(conf);
+        return new LakeFSTableOperations(new Path(location), fileIO, reporter, conf);
     }
 
     @Override
