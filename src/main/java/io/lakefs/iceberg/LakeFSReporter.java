@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hadoop.conf.Configuration;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -21,7 +20,7 @@ public class LakeFSReporter {
 
     private LakeFSReporter(){}
     public LakeFSReporter(Configuration hadoopConfig) {
-        String lakeFSServerURL = hadoopConfig.get("fs.s3a.endpoint", "FS.S3A.ENDPOINT not found in config");
+        String lakeFSServerURL = hadoopConfig.get("fs.s3a.endpoint");
         if (lakeFSServerURL.endsWith("/")) {
             lakeFSServerURL = lakeFSServerURL.substring(lakeFSServerURL.length()-1);
         }
@@ -39,15 +38,13 @@ public class LakeFSReporter {
                 put("count", 1);
             }
         };
-        log(reportMap);
-    }
-    private void log(Map<String, Object> reportMap) {
         try {
-            HttpRequest request = generateRequest(reportMap);
-            httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            log(reportMap);
+        } catch (JsonProcessingException ignored) { }
+    }
+    private void log(Map<String, Object> reportMap) throws JsonProcessingException {
+        HttpRequest request = generateRequest(reportMap);
+        httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
     }
 
     private HttpRequest generateRequest(Map<String, Object> body) throws JsonProcessingException {
