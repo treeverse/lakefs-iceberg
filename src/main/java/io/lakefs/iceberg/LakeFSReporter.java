@@ -2,6 +2,7 @@ package io.lakefs.iceberg;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 
 import java.net.URI;
@@ -14,42 +15,28 @@ import java.util.Map;
 
 public class LakeFSReporter {
     private URI lakeFSEndpoint;
-    private Configuration hadoopConfig;
+    private String authHeader;
     private HttpClient httpClient;
     private final String reportClient = "iceberg-catalog/" + getClass().getPackage().getImplementationVersion();
 
     private LakeFSReporter(){}
     public LakeFSReporter(Configuration hadoopConfig) {
         String lakeFSServerURL = hadoopConfig.get("fs.s3a.endpoint");
-        if (lakeFSServerURL.endsWith("/")) {
-            lakeFSServerURL = lakeFSServerURL.substring(lakeFSServerURL.length()-1);
-        }
-        lakeFSServerURL += "/api/v1/statistics";
-        this.lakeFSEndpoint = URI.create(lakeFSServerURL);
-        this.hadoopConfig = hadoopConfig;
+        this.lakeFSEndpoint = URI.create(StringUtils.stripEnd(lakeFSServerURL, "/") + "/api/v1/statistics");
+        this.authHeader = generateBasicAuthHeader(hadoopConfig);
         this.httpClient = HttpClient.newHttpClient();
     }
 
     public void logOp(String op) {
-        Map<String, Object> reportMap = new HashMap<>() {
-            {
-                put("class", "integration");
-                put("name", op);
-                put("count", 1);
-            }
-        };
         try {
-            log(reportMap);
+            Map<String, Object> reportMap = Map.of("class", "integration", "name", op, "count", 1);
+            HttpRequest request = generateRequest(reportMap);
+            httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
         } catch (JsonProcessingException ignored) { }
-    }
-    private void log(Map<String, Object> reportMap) throws JsonProcessingException {
-        HttpRequest request = generateRequest(reportMap);
-        httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
     }
 
     private HttpRequest generateRequest(Map<String, Object> body) throws JsonProcessingException {
         String requestBody = prepareRequestBody(body);
-        String authHeader = generateBasicAuthHeader();
         return HttpRequest
                 .newBuilder()
                 .uri(this.lakeFSEndpoint)
@@ -72,7 +59,7 @@ public class LakeFSReporter {
         return objectMapper.writeValueAsString(statisticsRequest);
     }
 
-    private String generateBasicAuthHeader() {
+    private String generateBasicAuthHeader(Configuration hadoopConfig) {
         String key = hadoopConfig.get("fs.s3a.access.key");
         String secret = hadoopConfig.get("fs.s3a.secret.key");
         String keySecret = key + ":" + secret;
