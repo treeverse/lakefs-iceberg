@@ -14,7 +14,7 @@ Use the following Maven dependency to install the lakeFS custom catalog:
 <dependency>
   <groupId>io.lakefs</groupId>
   <artifactId>lakefs-iceberg</artifactId>
-  <version>0.1.1</version>
+  <version>0.1.2</version>
 </dependency>
 ```
 
@@ -25,7 +25,6 @@ Here is how to configure the lakeFS custom catalog in Spark:
 conf.set("spark.sql.catalog.lakefs", "org.apache.iceberg.spark.SparkCatalog");
 conf.set("spark.sql.catalog.lakefs.catalog-impl", "io.lakefs.iceberg.LakeFSCatalog");
 conf.set("spark.sql.catalog.lakefs.warehouse", "lakefs://example-repo");
-conf.set("spark.sql.catalog.lakefs.uri", "https://example-org.us-east-1.lakefscloud.io")
 ```
 
 You will also need to configure the S3A Hadoop FileSystem to interact with lakeFS:
