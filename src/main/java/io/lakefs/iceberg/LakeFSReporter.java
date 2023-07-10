@@ -35,7 +35,7 @@ public class LakeFSReporter {
         Map<String, Object> reportMap = new HashMap<>() {
             {
                 put("class", "integration");
-                put("name", "write:" + op);
+                put("name", op);
                 put("count", 1);
             }
         };
