@@ -11,10 +11,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
+      - if: github.event.release
+        name: Create release tag
+        run: |
+          TAG=${{ github.event.release.tag_name }}
+          echo "TAG=${TAG#v}" >> $GITHUB_ENV
       - if: github.event.release
         name: Update version in pom.xml
-        run: mvn -B versions:set -DnewVersion=${{ github.event.release.tag_name }} -DgenerateBackupPoms=false
+        run: mvn -B versions:set -DnewVersion=$TAG -DgenerateBackupPoms=false
 
       - name: Set up Java and Maven Central Repository
         uses: actions/setup-java@v2
