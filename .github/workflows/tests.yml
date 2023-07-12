@@ -27,7 +27,8 @@ jobs:
           cache: "maven"
 
       - name: Build lakeFS Iceberg
-        run: mvn -DfinalName=lakefs-iceberg --batch-mode --update-snapshots package -DskipTests
+        run: mvn clean install --batch-mode --update-snapshots -DskipTests -P\!sign-artifacts
+#        run: mvn -DfinalName=lakefs-iceberg --batch-mode --update-snapshots package -DskipTests
 #        run: mvn -Passembly -DfinalName=lakefs-iceberg --batch-mode --update-snapshots package -DskipTests
 
       - name: Store lakeFS Iceberg
