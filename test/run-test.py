@@ -2,19 +2,18 @@ import argparse
 import sys
 
 import lakefs_client
-from lakefs_client import models
 from lakefs_client.client import LakeFSClient
-# from python_on_whales import docker
+from lakefs_client.model.access_key_credentials import AccessKeyCredentials
+from lakefs_client.model.comm_prefs_input import CommPrefsInput
+from lakefs_client.model.setup import Setup
+from lakefs_client.model.repository_creation import RepositoryCreation
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.conf import SparkConf
 
-from tenacity import retry, stop_after_attempt, wait_fixed
 
-@retry(wait=wait_fixed(1), stop=stop_after_attempt(7))
-def wait_for_setup(lfs_client):
-    setup_state = lfs_client.config.get_setup_state()
-    assert setup_state.state == 'initialized'
+MOCK_EMAIL = "test@acme.co"
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -32,11 +31,14 @@ def main():
         lakefs_client.Configuration(username=lakefs_access_key,
                                     password=lakefs_secret_key,
                                     host='http://localhost:8000'))
-    wait_for_setup(lfs_client)
+
+    # Setup lakeFS
+    lfs_client.config.setup_comm_prefs(CommPrefsInput(feature_updates=False, security_updates=False, email=MOCK_EMAIL))
+    lfs_client.config.setup(Setup(username="lynn",
+                                key=AccessKeyCredentials(access_key_id= lakefs_access_key, secret_access_key= lakefs_secret_key)))
+
     lfs_client.repositories.create_repository(
-        models.RepositoryCreation(name=args.repository,
-                                  storage_namespace=args.storage_namespace,
-                                  default_branch='main',))
+        RepositoryCreation(name=args.repository, storage_namespace=args.storage_namespace))
 
     spark_config = SparkConf()
     spark_config.set("spark.sql.catalog.lakefs", "org.apache.iceberg.spark.SparkCatalog")
