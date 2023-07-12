@@ -53,7 +53,7 @@ def main():
 
     spark = SparkSession.builder.config(conf=spark_config).getOrCreate()
 
-    df = spark.read.option("inferSchema","true").option("multiline","true").csv("./data-sets/film_permits.csv")
+    df = spark.read.option("inferSchema","true").option("multiline","true").csv("./test/data-sets/film_permits.csv")
     df.write.saveAsTable("lakefs.main.nyc.permits")
 
 
