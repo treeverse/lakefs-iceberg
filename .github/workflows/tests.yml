@@ -5,42 +5,9 @@ on:
     branches:
       - main
 
-## These permissions are needed to interact with GitHub's OIDC Token endpoint.
-#permissions:
-#  id-token: write
-#  contents: read
-#  packages: write
-
 jobs:
-#  build-lakefs-iceberg:
-#    name: Build lakeFS Iceberg package
-#    runs-on: ubuntu-20.04
-#    steps:
-#      - name: Check-out code
-#        uses: actions/checkout@v3
-#
-#      - name: Set up JDK 11
-#        uses: actions/setup-java@v3
-#        with:
-#          distribution: "temurin"
-#          java-version: "11"
-#          cache: "maven"
-#
-#      - name: Build lakeFS Iceberg
-#        run: mvn clean install --batch-mode --update-snapshots -DskipTests -P\!sign-artifacts
-##        run: mvn -DfinalName=lakefs-iceberg --batch-mode --update-snapshots package -DskipTests
-##        run: mvn -Passembly -DfinalName=lakefs-iceberg --batch-mode --update-snapshots package -DskipTests
-#
-#      - name: Store lakeFS Iceberg
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: lakefs-iceberg
-#          path: target/lakefs-iceberg-1.0-SNAPSHOT.jar
-
-
   iceberg-isolation-test:
     name: Test lakeFS isolation with iceberg
-#    needs: [ build-lakefs-iceberg ]
     runs-on: ubuntu-20.04
     services:
       lakefs:
@@ -71,18 +38,6 @@ jobs:
       #        run: mvn -DfinalName=lakefs-iceberg --batch-mode --update-snapshots package -DskipTests
       #        run: mvn -Passembly -DfinalName=lakefs-iceberg --batch-mode --update-snapshots package -DskipTests
 
-#      - name: Download lakeFS Iceberg
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: lakefs-iceberg
-#          path: target/
-
-#      - name: Download Spark App
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: spark-apps
-#          path: test/spark/app/target/
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -93,18 +48,6 @@ jobs:
       - name: Generate uniquifying value
         id: unique
         run: echo "value=$RANDOM" >> $GITHUB_OUTPUT
-
-#      - name: Start lakeFS for Spark tests
-#        uses: ./.github/actions/bootstrap-test-lakefs
-#        with:
-#          compose-directory: test/spark
-#        env:
-#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          LAKEFS_DATABASE_TYPE: postgres
-#          LAKEFS_BLOCKSTORE_TYPE: s3
-#          LAKEFS_BLOCKSTORE_S3_CREDENTIALS_ACCESS_KEY_ID: ${{ secrets.ESTI_AWS_ACCESS_KEY_ID }}
-#          LAKEFS_BLOCKSTORE_S3_CREDENTIALS_SECRET_ACCESS_KEY: ${{ secrets.ESTI_AWS_SECRET_ACCESS_KEY }}
 
       - name: Use lakeFS with S3 gateway
 #        working-directory: test/
