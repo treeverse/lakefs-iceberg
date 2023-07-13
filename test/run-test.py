@@ -43,7 +43,7 @@ def main():
     spark_config = SparkConf()
     spark_config.set("spark.sql.catalog.lakefs", "org.apache.iceberg.spark.SparkCatalog")
     spark_config.set("spark.sql.catalog.lakefs.catalog-impl", "io.lakefs.iceberg.LakeFSCatalog")
-    spark_config.set("spark.sql.catalog.lakefs.warehouse", f"lakefs://${args.repository}")
+    spark_config.set("spark.sql.catalog.lakefs.warehouse", f"lakefs://{args.repository}")
     spark_config.set("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")
     spark_config.set("spark.hadoop.fs.s3a.endpoint", "http://localhost:8000")
     spark_config.set("spark.hadoop.fs.s3a.access.key", lakefs_access_key)
