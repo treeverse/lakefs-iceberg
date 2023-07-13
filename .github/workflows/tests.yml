@@ -6,12 +6,12 @@ on:
       - main
 
 jobs:
-  iceberg-isolation-test:
-    name: Test lakeFS isolation with iceberg
+  iceberg-test:
+    name: Test lakeFS iceberg catalog
     runs-on: ubuntu-20.04
     services:
       lakefs:
-        image: "treeverse/lakefs:latest"
+        image: "treeverse/lakefs:0.104.0"
         ports:
           - '8000:8000'
         env:
