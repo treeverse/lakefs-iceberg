@@ -49,7 +49,7 @@ def main():
     spark_config.set("spark.hadoop.fs.s3a.access.key", lakefs_access_key)
     spark_config.set("spark.hadoop.fs.s3a.secret.key", lakefs_secret_key)
     spark_config.set("spark.hadoop.fs.s3a.path.style.access", "true")
-    spark_config.set("spark.jars.packages", "io.lakefs:lakefs-iceberg:1.0-SNAPSHOT,org.apache.iceberg:iceberg-spark-runtime-3.3_2.12:1.3.0")
+    spark_config.set("spark.jars.packages", "io.lakefs:lakefs-iceberg:1.0-SNAPSHOT,org.apache.iceberg:iceberg-spark-runtime-3.3_2.12:1.3.0,org.apache.hadoop:hadoop-aws:3.3.5,org.apache.hadoop:hadoop-client-api:3.3.5")
 
     spark = SparkSession.builder.config(conf=spark_config).getOrCreate()
 
