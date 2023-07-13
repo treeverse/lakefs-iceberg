@@ -20,9 +20,6 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--storage_namespace", default="local://", required=True)
     parser.add_argument("--repository", default="example")
-    # parser.add_argument("--aws_access_key")
-    # parser.add_argument("--aws_secret_key")
-    # parser.add_argument("--access_mode", choices=["s3_gateway", "hadoopfs", "hadoopfs_presigned"], default="s3_gateway")
     lakefs_access_key = 'AKIAIOSFODNN7EXAMPLE'
     lakefs_secret_key = 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
 
@@ -63,9 +60,7 @@ def main():
     lfs_client.branches.create_branch(repo_name, BranchCreation(name="dev", source="main"))
     df_main = spark.read.table("lakefs.main.nyc.permits")
     df_dev = spark.read.table("lakefs.dev.nyc.permits")
-    df_main.show(10)
-    df_dev.show(10)
-    assert (df_main.schema == df_main.schema) and (df_main.collect() == df_main.collect())
+    assert (df_main.schema == df_dev.schema) and (df_main.collect() == df_dev.collect()), "main and dev tables should be equal"
 
 if __name__ == '__main__':
     main()
