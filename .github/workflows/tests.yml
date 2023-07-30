@@ -49,6 +49,6 @@ jobs:
 
       - name: Use lakeFS with S3 gateway
         run: |
-          python ./test/run-test.py \
+          pytest ./test/test_iceberg.py \
             --storage_namespace s3://iceberg-lakefs-testing/${{ github.run_number }}-s3-gateway/${{ steps.unique.outputs.value }} \
             --repository gateway-test \
