@@ -11,7 +11,7 @@ import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Collections;
 
 public class TestLakeFSSpark {
     @Test
@@ -40,7 +40,7 @@ public class TestLakeFSSpark {
                 DataTypes.createStructField("val", DataTypes.IntegerType, false)
         });
         Row row = RowFactory.create(10);
-        Dataset<Row> df = spark.createDataFrame(List.of(row), schema).toDF("val");
+        Dataset<Row> df = spark.createDataFrame(Collections.singletonList(row), schema).toDF("val");
         df.writeTo(String.format("%s.%s.%s.%s", catalog, branch, db, table)).append();
         spark.sql(String.format("SELECT * FROM %s.%s.%s.%s", catalog, branch, db, table)).show();
     }
