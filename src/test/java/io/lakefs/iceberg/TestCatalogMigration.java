@@ -10,10 +10,11 @@ import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
 
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+
+import static org.junit.Assert.assertTrue;
 
 public class TestCatalogMigration {
     public static SparkConf newSparkSharedConfig(HashMap<String,String> lakeFSConf,  HashMap<String, String> srcConf)  {
@@ -45,12 +46,12 @@ public class TestCatalogMigration {
     @Test
     public void testMigrateHadoopToLakeFSCatalog() throws NoSuchTableException {
 
-        var catalog = "hadoop_prod";
-        var db = "db";
-        var table = "mytable";
-        var branch = "main";
-        var lakeFSCatalog = "lakefs";
-        var lakeFSRepo = "<LAKEFS_TABLE_NAME>";
+        String catalog = "hadoop_prod";
+        String db = "db";
+        String table = "mytable";
+        String branch = "main";
+        String lakeFSCatalog = "lakefs";
+        String lakeFSRepo = "<LAKEFS_TABLE_NAME>";
 
         // hadoop catalog on s3 iceberg config (source)
         HashMap<String, String> hadoopConf = new HashMap<>();
@@ -69,7 +70,7 @@ public class TestCatalogMigration {
         // pre-lakeFS simulate hadoop catalog on s3 catalog iceberg table
 
         // create spark session for hadoop on s3 catalog
-        var conf = TestCatalogMigration.newSparkSharedConfig( null, hadoopConf);
+        SparkConf conf = TestCatalogMigration.newSparkSharedConfig(null, hadoopConf);
         SparkSession spark = SparkSession.builder().master("local").config(conf).getOrCreate();
 
         // create table in hadoop catalog
@@ -81,7 +82,7 @@ public class TestCatalogMigration {
 
         // populate with data
         Row row = RowFactory.create(10);
-        Dataset<Row> df = spark.createDataFrame(List.of(row), schema).toDF("val");
+        Dataset<Row> df = spark.createDataFrame(Collections.singletonList(row), schema).toDF("val");
         df.writeTo(String.format("%s.%s_%s", catalog, db, table)).append();
 
         // show created data
@@ -92,8 +93,8 @@ public class TestCatalogMigration {
 
         // simulate migration into lakeFS catalog for an iceberg table
 
-        var hiveFullTableName = String.format("%s.%s_%s", catalog, db, table);
-        var lakeFSFullTableName=String.format("%s.%s.%s.%s", lakeFSCatalog, branch, db, table);
+        String hiveFullTableName = String.format("%s.%s_%s", catalog, db, table);
+        String lakeFSFullTableName = String.format("%s.%s.%s.%s", lakeFSCatalog, branch, db, table);
 
         // create spark session that is configured to both source (hadoop catalog) and lakeFS catalog.
 
@@ -107,12 +108,13 @@ public class TestCatalogMigration {
         sharedSpark.sql(String.format("CREATE TABLE IF NOT EXISTS %s USING iceberg AS SELECT * FROM %s", lakeFSFullTableName,hiveFullTableName));
 
         // show cloned table in lakeFS
-        var lakeFSDf = sharedSpark.sql(String.format("SELECT * FROM %s.%s.%s.%s", lakeFSCatalog, branch, db, table));
+        Dataset<Row> lakeFSDf;
+        lakeFSDf = sharedSpark.sql(String.format("SELECT * FROM %s.%s.%s.%s", lakeFSCatalog, branch, db, table));
         lakeFSDf.show();
 
         // assert source and target tables are equal
-        var diff = lakeFSDf.except(sharedSpark.sql(String.format("SELECT * FROM %s", hiveFullTableName)));
-        assertEquals(true, diff.isEmpty());
+        Dataset<Row> diff = lakeFSDf.except(sharedSpark.sql(String.format("SELECT * FROM %s", hiveFullTableName)));
+        assertTrue(diff.isEmpty());
     }
 
 }
