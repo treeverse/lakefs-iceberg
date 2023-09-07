@@ -2,6 +2,8 @@ package io.lakefs.iceberg;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hc.client5.http.async.methods.SimpleHttpRequest;
@@ -9,6 +11,8 @@ import org.apache.hc.client5.http.async.methods.SimpleRequestBuilder;
 import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
 import org.apache.hc.client5.http.impl.async.HttpAsyncClients;
 import org.apache.hc.core5.http.ContentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.Base64;
@@ -20,7 +24,7 @@ public class LakeFSReporter {
     private String authHeader;
     private CloseableHttpAsyncClient httpClient;
     private final String reportClient = "iceberg-catalog/" + getClass().getPackage().getImplementationVersion();
-
+    private final Logger logger = LoggerFactory.getLogger(LakeFSReporter.class);
     private LakeFSReporter() {
     }
 
@@ -33,13 +37,11 @@ public class LakeFSReporter {
 
     public void logOp(String op) {
         try {
-            Map<String, Object> reportMap = new HashMap<>();
-            reportMap.put("class", "integration");
-            reportMap.put("name", op);
-            reportMap.put("count", 1);
+            Map<String, Object> reportMap =  ImmutableMap.of("class", "integration", "name", op, "count", 1);
             SimpleHttpRequest request = generateRequest(reportMap);
             httpClient.execute(request, null);
-        } catch (JsonProcessingException ignored) {
+        } catch (Throwable ignored) {
+            logger.warn("Failed to report operation", ignored);
         }
     }
 
