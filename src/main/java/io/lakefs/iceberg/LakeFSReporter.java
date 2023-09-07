@@ -1,8 +1,8 @@
 package io.lakefs.iceberg;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
+import java.net.URI;
+import java.util.Base64;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -14,10 +14,9 @@ import org.apache.hc.core5.http.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 
 public class LakeFSReporter {
     private URI lakeFSEndpoint;
@@ -41,7 +40,7 @@ public class LakeFSReporter {
             SimpleHttpRequest request = generateRequest(reportMap);
             httpClient.execute(request, null);
         } catch (Throwable ignored) {
-            logger.warn("Failed to report operation", ignored);
+                logger.warn("Failed to report operation", ignored);
         }
     }
 
@@ -55,15 +54,9 @@ public class LakeFSReporter {
     }
 
     private String prepareRequestBody(Map<String, Object> requestMap) throws JsonProcessingException {
-        Map<String, Map<String, Object>[]> statisticsRequest = new HashMap<String, Map<String, Object>[]>() {
-            {
-                put("events", new Map[]{requestMap});
-            }
-        };
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.writeValueAsString(statisticsRequest);
+        return new ObjectMapper().writeValueAsString(ImmutableMap.of("events", new Map[] { requestMap }));
     }
-
+    
     private String generateBasicAuthHeader(Configuration hadoopConfig) {
         String key = hadoopConfig.get("fs.s3a.access.key");
         String secret = hadoopConfig.get("fs.s3a.secret.key");
