@@ -36,11 +36,9 @@ public class LakeFSFileIO implements FileIO {
             path = String.format("s3a://%s/%s/%s", lakeFSRepo, lakeFSRef, path);
         }
         if (!path.startsWith(String.format("s3a://%s/%s/", lakeFSRepo, lakeFSRef))) {
-            System.out.println(String.format("path %s does not start with s3a://%s/%s/", path, lakeFSRepo, lakeFSRef));
             // not a path in the repository, treat as a regular path
             return wrapped.newInputFile(path);
         }
-        System.out.println(String.format("path %s starts with s3a://%s/%s/", path, lakeFSRepo, lakeFSRef));
         return HadoopInputFile.fromPath(new LakeFSPath(path), wrapped.conf());
     }
 
@@ -51,10 +49,8 @@ public class LakeFSFileIO implements FileIO {
         }
         if (!path.startsWith(String.format("s3a://%s/%s/", lakeFSRepo, lakeFSRef))) {
             // not a path in the repository, treat as a regular path
-            System.out.println(String.format("path %s does not start with s3a://%s/%s/", path, lakeFSRepo, lakeFSRef));
             return wrapped.newInputFile(path, length);
         }
-        System.out.println(String.format("path %s starts with s3a://%s/%s/", path, lakeFSRepo, lakeFSRef));
         return HadoopInputFile.fromPath(new LakeFSPath(path), length, wrapped.conf());
     }
 
@@ -64,11 +60,9 @@ public class LakeFSFileIO implements FileIO {
             path = String.format("s3a://%s/%s/%s", lakeFSRepo, lakeFSRef, path);
         }
         if (!path.startsWith(String.format("s3a://%s/%s/", lakeFSRepo, lakeFSRef))) {
-            System.out.println(String.format("path %s does not start with s3a://%s/%s/", path, lakeFSRepo, lakeFSRef));
             // not a path in the repository, treat as a regular path
             return wrapped.newOutputFile(path);
         }
-        System.out.println(String.format("path %s starts with s3a://%s/%s/", path, lakeFSRepo, lakeFSRef));
         return HadoopOutputFile.fromPath(new LakeFSPath(path), wrapped.conf());
     }
 
