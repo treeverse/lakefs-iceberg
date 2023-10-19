@@ -32,7 +32,7 @@ public class LakeFSFileIO implements FileIO {
 
     @Override
     public InputFile newInputFile(String path) {
-        if (!path.startsWith("s3a://")) {
+        if (!path.matches("^[0-9a-z]*://.*")) {
             path = String.format("s3a://%s/%s/%s", lakeFSRepo, lakeFSRef, path);
         }
         if (!path.startsWith(String.format("s3a://%s/%s/", lakeFSRepo, lakeFSRef))) {
@@ -44,7 +44,7 @@ public class LakeFSFileIO implements FileIO {
 
     @Override
     public InputFile newInputFile(String path, long length) {
-        if (!path.startsWith("s3a://")) {
+        if (!path.matches("^[0-9a-z]*://.*")) {
             path = String.format("s3a://%s/%s/%s", lakeFSRepo, lakeFSRef, path);
         }
         if (!path.startsWith(String.format("s3a://%s/%s/", lakeFSRepo, lakeFSRef))) {
@@ -56,7 +56,7 @@ public class LakeFSFileIO implements FileIO {
 
     @Override
     public OutputFile newOutputFile(String path) {
-        if (!path.startsWith("s3a://")) {
+        if (!path.matches("^[0-9a-z]*://.*")) {
             path = String.format("s3a://%s/%s/%s", lakeFSRepo, lakeFSRef, path);
         }
         if (!path.startsWith(String.format("s3a://%s/%s/", lakeFSRepo, lakeFSRef))) {
