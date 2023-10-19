@@ -30,27 +30,38 @@ public class LakeFSFileIO implements FileIO {
         return wrapped.properties();
     }
 
-
     @Override
     public InputFile newInputFile(String path) {
-        if (!path.startsWith("s3a://")) {
+        if (!path.matches("^[0-9a-z]*://.*")) {
             path = String.format("s3a://%s/%s/%s", lakeFSRepo, lakeFSRef, path);
+        }
+        if (!path.startsWith(String.format("s3a://%s/%s/", lakeFSRepo, lakeFSRef))) {
+            // not a path in the repository, treat as a regular path
+            return wrapped.newInputFile(path);
         }
         return HadoopInputFile.fromPath(new LakeFSPath(path), wrapped.conf());
     }
 
     @Override
     public InputFile newInputFile(String path, long length) {
-        if (!path.startsWith("s3a://")) {
+        if (!path.matches("^[0-9a-z]*://.*")) {
             path = String.format("s3a://%s/%s/%s", lakeFSRepo, lakeFSRef, path);
+        }
+        if (!path.startsWith(String.format("s3a://%s/%s/", lakeFSRepo, lakeFSRef))) {
+            // not a path in the repository, treat as a regular path
+            return wrapped.newInputFile(path, length);
         }
         return HadoopInputFile.fromPath(new LakeFSPath(path), length, wrapped.conf());
     }
 
     @Override
     public OutputFile newOutputFile(String path) {
-        if (!path.startsWith("s3a://")) {
+        if (!path.matches("^[0-9a-z]*://.*")) {
             path = String.format("s3a://%s/%s/%s", lakeFSRepo, lakeFSRef, path);
+        }
+        if (!path.startsWith(String.format("s3a://%s/%s/", lakeFSRepo, lakeFSRef))) {
+            // not a path in the repository, treat as a regular path
+            return wrapped.newOutputFile(path);
         }
         return HadoopOutputFile.fromPath(new LakeFSPath(path), wrapped.conf());
     }
