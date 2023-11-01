@@ -46,9 +46,16 @@ def test_diff_two_same_branches(spark, lfs_client, lakefs_repo):
 
 def test_delete_on_dev_and_merge(spark, lfs_client, lakefs_repo):
     lfs_client.branches.create_branch(lakefs_repo, BranchCreation(name="test1", source="main"))
+    print("1")
+    spark.sql("SELECT * FROM lakefs.test1.company.workers").show()
     spark.sql("DELETE FROM lakefs.test1.company.workers WHERE id = 6")
+    print("2")
+    spark.sql("SELECT * FROM lakefs.test1.company.workers").show()
     lfs_client.commits.commit(lakefs_repo, "test1", CommitCreation(message="delete one row"))
-    lfs_client.refs.merge_into_branch(lakefs_repo, "test1", "main")
+    merge_output = lfs_client.refs.merge_into_branch(lakefs_repo, "test1", "main")
+    print(merge_output)
+    print("3")
+    spark.sql("SELECT * FROM lakefs.main.company.workers").show()
     df_main = spark.read.table("lakefs.main.company.workers")
     df_dev = spark.read.table("lakefs.test1.company.workers")
     assert (df_main.schema == df_dev.schema) and (df_main.collect() == df_dev.collect()), "main and test1 tables should be equal"
