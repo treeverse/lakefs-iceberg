@@ -44,7 +44,7 @@ def test_diff_two_same_branches(spark, lfs_client, lakefs_repo):
     df_dev = spark.read.table("lakefs.dev.company.workers")
     assert (df_main.schema == df_dev.schema) and (df_main.collect() == df_dev.collect()), "main and dev tables should be equal"
 
-def delete_on_dev_and_merge(spark, lfs_client, lakefs_repo):
+def test_delete_on_dev_and_merge(spark, lfs_client, lakefs_repo):
     df = get_data(spark)
     df.write.saveAsTable("lakefs.main.company.workers")
 
@@ -58,7 +58,7 @@ def delete_on_dev_and_merge(spark, lfs_client, lakefs_repo):
     assert (df_main.schema == df_dev.schema) and (df_main.collect() == df_dev.collect()), "main and dev tables should be equal"
 
 
-def multiple_changes_and_merge(spark, lfs_client, lakefs_repo):
+def test_multiple_changes_and_merge(spark, lfs_client, lakefs_repo):
     df = get_data(spark)
     df.write.saveAsTable("lakefs.main.company.workers")
 
