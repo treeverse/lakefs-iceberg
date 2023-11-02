@@ -33,7 +33,7 @@ def initiate_repo_with_data(spark, lfs_client: lakefs_sdk.client.LakeFSClient, r
 
 
 def test_diff_two_same_branches(spark, lfs_client: lakefs_sdk.client.LakeFSClient, lakefs_repo, storage_namespace):
-    repo_name = f"{lakefs_repo}_test1"
+    repo_name = f"{lakefs_repo}-test1"
     initiate_repo_with_data(spark, lfs_client, repo_name, storage_namespace, "test1")
 
     #Create a new branch, check that the tables are the same
@@ -44,7 +44,7 @@ def test_diff_two_same_branches(spark, lfs_client: lakefs_sdk.client.LakeFSClien
 
 
 def test_delete_on_dev_and_merge(spark, lfs_client: lakefs_sdk.client.LakeFSClient, lakefs_repo, storage_namespace):
-    repo_name = f"{lakefs_repo}_test2"
+    repo_name = f"{lakefs_repo}-test2"
     initiate_repo_with_data(spark, lfs_client, repo_name, storage_namespace, "test2")
 
     lfs_client.branches_api.create_branch(repo_name, BranchCreation(name="test2", source="main"))
@@ -57,7 +57,7 @@ def test_delete_on_dev_and_merge(spark, lfs_client: lakefs_sdk.client.LakeFSClie
 
 
 def test_multiple_changes_and_merge(spark, lfs_client: lakefs_sdk.client.LakeFSClient, lakefs_repo, storage_namespace):
-    repo_name = f"{lakefs_repo}_test3"
+    repo_name = f"{lakefs_repo}-test3"
     initiate_repo_with_data(spark, lfs_client, repo_name, storage_namespace, "test3")
 
     lfs_client.branches.create_branch(repo_name, BranchCreation(name="test3", source="main"))
