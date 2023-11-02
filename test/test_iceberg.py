@@ -21,53 +21,39 @@ def get_data(spark):
     return df
 
 
-def initiate_repo_with_data(spark, lfs_client: lakefs_sdk.client.LakeFSClient, repo_name, storage_namespace, test_name):
-    storage_namespace = f"{storage_namespace}/{test_name}"
-    print("storage_namespace ", storage_namespace)
-    print("repo name ", repo_name)
-    lfs_client.repositories_api.create_repository(
-        RepositoryCreation(name=repo_name, storage_namespace=storage_namespace))
+def test_diff_two_same_branches(spark, lfs_client: lakefs_sdk.client.LakeFSClient, lakefs_repo):
     df = get_data(spark)
     df.write.saveAsTable("lakefs.main.company.workers")
-    lfs_client.commits_api.commit(repo_name, "main", CommitCreation(message="Initial data load"))
-
-
-def test_diff_two_same_branches(spark, lfs_client: lakefs_sdk.client.LakeFSClient, lakefs_repo, storage_namespace):
-    repo_name = f"{lakefs_repo}-test1"
-    initiate_repo_with_data(spark, lfs_client, repo_name, storage_namespace, "test1")
+    lfs_client.commits_api.commit(lakefs_repo, "main", CommitCreation(message="Initial data load"))
 
     #Create a new branch, check that the tables are the same
-    lfs_client.branches_api.create_branch(repo_name, BranchCreation(name="dev", source="main"))
+    lfs_client.branches_api.create_branch(lakefs_repo, BranchCreation(name="dev", source="main"))
     df_main = spark.read.table("lakefs.main.company.workers")
     df_dev = spark.read.table("lakefs.dev.company.workers")
     assert (df_main.schema == df_dev.schema) and (df_main.collect() == df_dev.collect()), "main and dev tables should be equal"
 
 
-def test_delete_on_dev_and_merge(spark, lfs_client: lakefs_sdk.client.LakeFSClient, lakefs_repo, storage_namespace):
-    repo_name = f"{lakefs_repo}-test2"
-    initiate_repo_with_data(spark, lfs_client, repo_name, storage_namespace, "test2")
-
-    lfs_client.branches_api.create_branch(repo_name, BranchCreation(name="test2", source="main"))
+def test_delete_on_dev_and_merge(spark, lfs_client: lakefs_sdk.client.LakeFSClient, lakefs_repo):
+    lfs_client.branches_api.create_branch(lakefs_repo, BranchCreation(name="test1", source="main"))
+    lfs_client.branches_api.create_branch(lakefs_repo, BranchCreation(name="test2", source="test1"))
     spark.sql("DELETE FROM lakefs.test2.company.workers WHERE id = 6")
-    lfs_client.commits_api.commit(repo_name, "test2", CommitCreation(message="delete one row"))
-    lfs_client.refs_api.merge_into_branch(repo_name, "test2", "main")
-    df_main = spark.read.table("lakefs.main.company.workers")
-    df_dev = spark.read.table("lakefs.test2.company.workers")
-    assert (df_main.schema == df_dev.schema) and (df_main.collect() == df_dev.collect()), "main and test2 tables should be equal"
+    lfs_client.commits_api.commit(lakefs_repo, "test2", CommitCreation(message="delete one row"))
+    lfs_client.refs_api.merge_into_branch(lakefs_repo, "test2", "test1")
+    df_source = spark.read.table("lakefs.test1.company.workers")
+    df_dest = spark.read.table("lakefs.test2.company.workers")
+    assert (df_source.schema == df_dest.schema) and (df_source.collect() == df_dest.collect()), "test1 and test2 tables should be equal"
 
 
-def test_multiple_changes_and_merge(spark, lfs_client: lakefs_sdk.client.LakeFSClient, lakefs_repo, storage_namespace):
-    repo_name = f"{lakefs_repo}-test3"
-    initiate_repo_with_data(spark, lfs_client, repo_name, storage_namespace, "test3")
-
-    lfs_client.branches.create_branch(repo_name, BranchCreation(name="test3", source="main"))
-    spark.sql("DELETE FROM lakefs.test3.company.workers WHERE id = 6")
-    spark.sql("DELETE FROM lakefs.test3.company.workers WHERE id = 5")
-    spark.sql("INSERT INTO lakefs.test3.company.workers VALUES (7, 'Jhon', 'Smith', 33, 'M')")
-    spark.sql("DELETE FROM lakefs.test3.company.workers WHERE id = 4")
-    spark.sql("INSERT INTO lakefs.test3.company.workers VALUES (8, 'Marta', 'Green', 31, 'F')")
-    lfs_client.commits.commit(repo_name, "test3", CommitCreation(message="Some changes"))
-    lfs_client.refs.merge_into_branch(repo_name, "test3", "main")
-    df_main = spark.read.table("lakefs.main.company.workers")
-    df_dev = spark.read.table("lakefs.test3.company.workers")
-    assert (df_main.schema == df_dev.schema) and (df_main.collect() == df_dev.collect()), "main and dev tables should be equal"
+def test_multiple_changes_and_merge(spark, lfs_client: lakefs_sdk.client.LakeFSClient, lakefs_repo):
+    lfs_client.branches.create_branch(lakefs_repo, BranchCreation(name="test3", source="main"))
+    lfs_client.branches.create_branch(lakefs_repo, BranchCreation(name="test4", source="test3"))
+    spark.sql("DELETE FROM lakefs.test4.company.workers WHERE id = 6")
+    spark.sql("DELETE FROM lakefs.test4.company.workers WHERE id = 5")
+    spark.sql("INSERT INTO lakefs.test4.company.workers VALUES (7, 'Jhon', 'Smith', 33, 'M')")
+    spark.sql("DELETE FROM lakefs.test4.company.workers WHERE id = 4")
+    spark.sql("INSERT INTO lakefs.test4.company.workers VALUES (8, 'Marta', 'Green', 31, 'F')")
+    lfs_client.commits.commit(lakefs_repo, "test4", CommitCreation(message="Some changes"))
+    lfs_client.refs.merge_into_branch(lakefs_repo, "test4", "test3")
+    df_source = spark.read.table("lakefs.test3.company.workers")
+    df_dest = spark.read.table("lakefs.test4.company.workers")
+    assert (df_source.schema == df_dest.schema) and (df_source.collect() == df_dest.collect()), "test3 and test4 tables should be equal"

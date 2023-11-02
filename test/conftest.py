@@ -25,9 +25,6 @@ def pytest_addoption(parser):
 def lakefs_repo(request):
     return request.config.getoption('--repository')
 
-@pytest.fixture
-def storage_namespace(request):
-    return request.config.getoption('--storage_namespace')
 
 @pytest.fixture(scope="session")
 def spark(pytestconfig):
@@ -48,6 +45,7 @@ def spark(pytestconfig):
     yield spark
     spark.stop()
 
+
 @pytest.fixture(scope="session")
 def lfs_client(pytestconfig):
     lfs_client = LakeFSClient(
@@ -56,7 +54,12 @@ def lfs_client(pytestconfig):
                                     host='http://localhost:8000'))
 
     # Setup lakeFS
+    repo_name = pytestconfig.getoption('--repository')
+    storage_namespace = pytestconfig.getoption('--storage_namespace')
+    lfs_client.config.setup_comm_prefs(CommPrefsInput(feature_updates=False, security_updates=False, email=MOCK_EMAIL))
     lfs_client.internal_api.setup_comm_prefs(CommPrefsInput(feature_updates=False, security_updates=False, email=MOCK_EMAIL))
     # lfs_client.internal_api.setup(Setup(username="lynn",
     #                               key=AccessKeyCredentials(access_key_id=LAKEFS_ACCESS_KEY, secret_access_key=LAKEFS_SECRET_KEY)))
+    lfs_client.repositories.create_repository(
+        RepositoryCreation(name=repo_name, storage_namespace=storage_namespace))
     return lfs_client
