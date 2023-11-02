@@ -23,6 +23,8 @@ def get_data(spark):
 
 def initiate_repo_with_data(spark, lfs_client: lakefs_sdk.client.LakeFSClient, repo_name, storage_namespace, test_name):
     storage_namespace = f"{storage_namespace}/{test_name}"
+    print("storage_namespace ", storage_namespace)
+    print("repo name ", repo_name)
     lfs_client.repositories_api.create_repository(
         RepositoryCreation(name=repo_name, storage_namespace=storage_namespace))
     df = get_data(spark)
