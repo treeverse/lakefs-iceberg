@@ -5,15 +5,15 @@ from pyspark.sql.types import StructType, StructField, StringType, IntegerType
 
 def get_data(spark):
     data_set = [(1, "James", "Smith", 32, "M"),
-                (2, "Michael","Rose", 35 ,"M"),
+                (2, "Michael","Rose", 35, "M"),
                 (3, "Robert", "Williams", 41, "M"),
                 (4, "Maria", "Jones", 36, "F"),
                 (5, "Jen","Brown", 44, "F"),
                 (6, "Monika","Geller", 31, "F")]
 
     schema = StructType([StructField("id", StringType(), True),
-        StructField("firstname",StringType(),True),
-        StructField("lastname",StringType(),True),
+        StructField("firstname", StringType(), True),
+        StructField("lastname", StringType(), True),
         StructField("age", IntegerType(), True),
         StructField("gender", StringType(), True),
         ])
