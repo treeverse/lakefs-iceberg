@@ -1,7 +1,6 @@
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.conf import SparkConf
-
 import pytest
 
 import lakefs_sdk
@@ -57,7 +56,7 @@ def lfs_client(pytestconfig):
     repo_name = pytestconfig.getoption('--repository')
     storage_namespace = pytestconfig.getoption('--storage_namespace')
     lfs_client.internal_api.setup_comm_prefs(CommPrefsInput(feature_updates=False, security_updates=False, email=MOCK_EMAIL))
-    lfs_client.internal_api.setup(Setup(username="lynn",
+    lfs_client.internal_api.setup(Setup(username="admin",
                                   key=AccessKeyCredentials(access_key_id=LAKEFS_ACCESS_KEY, secret_access_key=LAKEFS_SECRET_KEY)))
     lfs_client.repositories_api.create_repository(
         RepositoryCreation(name=repo_name, storage_namespace=storage_namespace))
