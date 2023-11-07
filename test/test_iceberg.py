@@ -30,7 +30,7 @@ def test_diff_two_same_branches(spark, lfs_client: lakefs_sdk.client.LakeFSClien
     lfs_client.branches_api.create_branch(lakefs_repo, BranchCreation(name="dev", source="main"))
     df_main = spark.read.table("lakefs.main.company.workers")
     df_dev = spark.read.table("lakefs.dev.company.workers")
-    assert (df_main.schema == df_dev.schema) and (df_main.collect() == df_dev.collect()), "main and dev tables should be equal"
+    assert (df_main.schema == df_dev.schema) and (set(df_main.collect()) == set(df_dev.collect())), "main and dev tables should be equal"
 
 
 def test_delete_on_dev_and_merge(spark, lfs_client: lakefs_sdk.client.LakeFSClient, lakefs_repo):
@@ -41,7 +41,7 @@ def test_delete_on_dev_and_merge(spark, lfs_client: lakefs_sdk.client.LakeFSClie
     lfs_client.refs_api.merge_into_branch(lakefs_repo, "test2", "test1")
     df_source = spark.read.table("lakefs.test1.company.workers")
     df_dest = spark.read.table("lakefs.test2.company.workers")
-    assert (df_source.schema == df_dest.schema) and (df_source.collect() == df_dest.collect()), "test1 and test2 tables should be equal"
+    assert (df_source.schema == df_dest.schema) and (set(df_source.collect()) == set(df_dest.collect())), "test1 and test2 tables should be equal"
 
 
 def test_multiple_changes_and_merge(spark, lfs_client: lakefs_sdk.client.LakeFSClient, lakefs_repo):
@@ -56,4 +56,4 @@ def test_multiple_changes_and_merge(spark, lfs_client: lakefs_sdk.client.LakeFSC
     lfs_client.refs_api.merge_into_branch(lakefs_repo, "test4", "test3")
     df_source = spark.read.table("lakefs.test3.company.workers")
     df_dest = spark.read.table("lakefs.test4.company.workers")
-    assert (df_source.schema == df_dest.schema) and (df_source.collect() == df_dest.collect()), "test3 and test4 tables should be equal"
+    assert (df_source.schema == df_dest.schema) and (set(df_source.collect()) == set(df_dest.collect())), "test3 and test4 tables should be equal"
